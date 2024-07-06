@@ -1,29 +1,27 @@
 <template>
-    <BaseTable :items="items" :columns="columns">
-        <template #address="{ item }"> {{ item.city }} -- {{ item.street }} -- {{ item.suite }} </template>
-        <template #company="{ item }"> {{ item.name }} </template>
-        <template #deleteButton="{ row }">
-            <DeleteButton :item="row" @deleteItem="deleteItem" />
-        </template>
-    </BaseTable>
+    <BaseTable v-model:items="items" :columns="columns" deletable />
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { columns } from './constants/columns';
-import BaseTable from './components/BaseTable';
-import DeleteButton from './components/DeleteButton';
+import { onMounted, shallowRef } from 'vue';
+import { columns, fields } from './constants';
+import { serializeCells } from './methods';
 
-const items = ref([]);
+import BaseTable from './components/BaseTable';
+
+const items = shallowRef([]);
 
 const getItems = async () => {
-    const res = await fetch('https://jsonplaceholder.typicode.com/users');
-    const data = await res.json();
-    items.value = data;
-};
-
-const deleteItem = (data) => {
-    items.value = items.value.filter((item) => item.id !== data.id);
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 2000);
+    try {
+        const res = await fetch('https://jsonplaceholder.typicode.com/users', { controller: controller });
+        const data = await res.json();
+        items.value = serializeCells(data, fields.users);
+    } catch (error) {
+        console.log(error);
+        items.value = [];
+    }
 };
 
 onMounted(() => {

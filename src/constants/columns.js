@@ -5,6 +5,5 @@ export const columns = [
     { key: 'id', label: 'Id' },
     { key: 'name', label: 'Name' },
     { key: 'phone', label: 'Phone' },
-    { key: 'username', label: 'Username' },
-    { key: 'deleteButton', label: 'Delete?' }
+    { key: 'username', label: 'Username' }
 ];
