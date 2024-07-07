@@ -1,7 +1,7 @@
 <template>
     <td>
-        <component :is="column?.component ?? 'p'" :row="row" :column="column" :item="item" @click="action">
-            {{ row[column?.key] }}
+        <component :is="currentCell?.component" v-bind="currentCell?.bind" @click="action">
+            {{ currentCell.text }}
         </component>
     </td>
 </template>
@@ -17,9 +17,26 @@ const item = computed(() => {
 });
 const actions = inject('actions');
 
+const currentCell = computed(() => {
+    const { column, row } = props;
+    const text = row[column?.key];
+
+    let component = { component: 'p', text };
+
+    if (column?.component) {
+        component = {
+            component: column.component,
+            bind: {
+                column,
+                row,
+                text
+            }
+        };
+    }
+    return component;
+});
 const action = () => {
     const { column, row } = props;
-
     if (actions[column?.action]) {
         actions[column?.action](row);
     } else {
