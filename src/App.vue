@@ -1,5 +1,5 @@
 <template>
-    <BaseTable v-model:items="items" :columns="columns" deletable />
+    <BaseTable v-model="items" :columns="columns" />
 </template>
 
 <script setup>
