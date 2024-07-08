@@ -7,7 +7,7 @@
             </tr>
         </thead>
         <tbody>
-            <BaseRow v-for="row in modelValue" :key="row.id" :columns="columns" :row="row" @actionItem="actionItem" />
+            <BaseRow v-for="row in currentItems" :key="row.id" :columns="columns" :row="row" @actionItem="actionItem" />
         </tbody>
     </table>
     <p v-else>No data</p>
@@ -16,11 +16,16 @@
 <script setup>
 import { computed, provide } from 'vue';
 import BaseRow from './overview/BaseRow.vue';
+import { useActionsTable } from '@/composables';
 
-const props = defineProps({ modelValue: { type: Array }, columns: { type: Array } });
+const props = defineProps({
+    modelValue: { type: Array },
+    columns: { type: Array },
+    useActions: { type: Function, default: useActionsTable }
+});
 const emit = defineEmits(['update:modelValue']);
 
-const currentItems = computed({
+const items = computed({
     get: () => {
         return props.modelValue;
     },
@@ -29,15 +34,13 @@ const currentItems = computed({
     }
 });
 
-const deleteItem = (data) => {
-    currentItems.value = currentItems.value.filter((item) => item !== data);
-};
+const { deleteItem, currentItems } = props.useActions(items);
 
 const actionItem = (data) => {
     emit(data.column.action ?? 'clickRow', data);
 };
 
-provide('actions', { deleteItem, actionItem });
+provide('actions', { currentItems, deleteItem, actionItem });
 </script>
 
 <style></style>

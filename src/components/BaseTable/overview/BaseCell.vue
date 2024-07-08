@@ -1,46 +1,43 @@
 <template>
     <td>
         <component :is="currentCell?.component" v-bind="currentCell?.bind" @click="action">
-            {{ currentCell.text }}
+            {{ currentCell.cell }}
         </component>
     </td>
 </template>
 
 <script setup>
+import { serializeComponent } from '@/methods';
 import { computed, inject } from 'vue';
 defineOptions({ name: 'BaseCell' });
 
-const props = defineProps({ column: { type: Object }, row: { type: Object, default: () => ({}) } });
-const item = computed(() => {
-    const { column, row } = props;
-    return row?.[column?.key] ?? {};
+const props = defineProps({
+    column: {
+        type: Object,
+        default: () => ({})
+    },
+    row: {
+        type: Object,
+        default: () => ({})
+    }
 });
+
 const actions = inject('actions');
 
 const currentCell = computed(() => {
     const { column, row } = props;
     const text = row[column?.key];
+    const bindProps = { column, row, cell: text };
+    const defaultComponent = { component: 'p', cell: text };
 
-    let component = { component: 'p', text };
-
-    if (column?.component) {
-        component = {
-            component: column.component,
-            bind: {
-                column,
-                row,
-                text
-            }
-        };
-    }
-    return component;
+    return serializeComponent(defaultComponent, bindProps, column?.component);
 });
 const action = () => {
     const { column, row } = props;
-    if (actions[column?.action]) {
-        actions[column?.action](row);
+    if (actions[column.action]) {
+        actions[column.action]?.call(null, row);
     } else {
-        actions.actionItem({ item, column, row });
+        actions.actionItem({ column, row });
     }
 };
 </script>

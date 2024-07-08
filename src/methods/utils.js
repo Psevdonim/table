@@ -21,3 +21,23 @@ export const serializeCells = (rows, fields) => {
 
     return serializedData || [];
 };
+
+export const serializeComponent = (defaultComponent, bindProps, dynamicComponent) => {
+    let component = defaultComponent;
+
+    if (dynamicComponent) {
+        const bind = {};
+        Object.keys(dynamicComponent.props ?? {}).forEach((key) => {
+            if (bindProps[key]) {
+                bind[key] = bindProps[key];
+            }
+        });
+
+        component = {
+            component: dynamicComponent,
+            bind
+        };
+    }
+
+    return component;
+};
